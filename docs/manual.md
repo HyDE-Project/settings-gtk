@@ -7,7 +7,7 @@ those tools, or edit their configuration files.
 
 ## Launch and keyboard manual
 
-After deploying this branch through the normal HyDE installer, open **HyDE
+After installing it as a HyDE dot (see the [README](../README.md#installation)), open **HyDE
 Settings** from your application launcher or **Settings** from Waybar's HyDE menu.
 
 ```sh
@@ -21,10 +21,10 @@ or a display connection. Unknown options and positional arguments return status
 2 with usage instructions. Help and a successful overview return 0. Missing GTK
 or a graphical session returns 1 with a readable diagnostic.
 
-To preview the checkout without deploying it:
+To preview a checkout of this repository without deploying it:
 
 ```sh
-sh Configs/.local/lib/hyde/settings.sh
+sh settings.sh
 ```
 
 This uses your installed HyDE tools and current Waybar colours. It does not deploy
@@ -113,13 +113,13 @@ exact `pacman -S` command as a tooltip.
 ## Runtime and installation
 
 The runtime is distribution Python 3.11 or later, GTK 3 and PyGObject. Arch package
-names `gtk3` and `python-gobject` are explicit core dependencies in both installer
-lists. The shell entry intentionally uses `/usr/bin/python3` to avoid HyDE's
+names `gtk3` and `python-gobject` are declared by this dot itself (`[[hyde-settings.dependency]]`
+in HyDE's `Scripts/dots/settings.toml`), not by HyDE core. The shell entry intentionally uses `/usr/bin/python3` to avoid HyDE's
 isolated Python environment, which need not contain distribution introspection
 bindings. No pip package, daemon, plugin framework or custom settings backend is
 introduced.
 
-The core dotfile manifest deploys the library and one specific desktop file. It
+The dot deploys `settings.py`, `settings.sh` and the three launchers in `applications/`. It
 never cleans the user's applications directory. Waybar's existing menu deployment
 includes the new action. The existing Hyprland floating-window rule includes
 `org.hyde.Settings`; the compositor supplies borders, rounding and window effects.
@@ -236,8 +236,9 @@ supply. Give that wrapper its own `TryExec` naming the wrapped binary
 (`kcmshell6`, not `hyde-shell`): without it, GIO only checks that the outer
 `hyde-shell` command resolves, so the entry shows as available -- and its
 "Requires" hint disappears -- even when the wrapped tool itself isn't
-installed. Add the new file to `Scripts/dots/hyde.toml`'s sync paths too;
-shipping it in the repo alone never deploys it to a real install.
+installed. Add the new file to `applications/` here and to the desktop-file `paths` list in
+HyDE's `Scripts/dots/settings.toml` too; shipping it in this repo alone never
+deploys it to a real install.
 
 Also check whether the tool re-execs its whole GUI as root instead of
 authorizing individual actions: `gufw`'s `Exec=gufw` runs `pkexec
@@ -271,9 +272,12 @@ the reliable fallback for viewing them.
 ## Testing
 
 ```sh
-sh tests/run.sh settings
-sh tests/run.sh
+python3 tests/settings_test.py          # logic checks
+python3 tests/settings_test.py --gtk    # + GTK integration checks (needs Xvfb)
 ```
+
+Inside a HyDE checkout, `sh tests/run.sh settings` runs the same suite through
+HyDE's shared test runner.
 
 The settings case runs standard-library `unittest` logic checks, then GTK
 integration tests on an isolated Xvfb display. No external settings programs are
@@ -284,7 +288,7 @@ print an explicit skip. A sandbox may need permission for Xvfb's local socket.
 
 Tests must assert behaviour for both valid and invalid inputs. Do not replace a
 failing expectation just to match the implementation. The matrix and remaining
-hardware/compositor acceptance steps are in [the test plan](hyde-settings-tests.md).
+hardware/compositor acceptance steps are in [the test plan](tests.md).
 
 GTK integration references: [CSS parsing errors](https://docs.gtk.org/gtk3/signal.CssProvider.parsing-error.html)
 and [GIO application launch](https://docs.gtk.org/gio/method.AppInfo.launch.html).
