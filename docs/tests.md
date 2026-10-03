@@ -2,7 +2,8 @@
 
 ## Automated behaviour matrix
 
-Run `sh tests/run.sh settings`. Tests use Python's standard library and GTK/Xvfb;
+Run `python3 tests/settings_test.py` (add `--gtk` for the GTK checks; inside a HyDE
+checkout, `sh tests/run.sh settings` runs the same suite). Tests use Python's standard library and GTK/Xvfb;
 no physical devices or external configuration tools are exercised.
 
 | Boundary | Inputs / failure | Required outcome |
@@ -65,7 +66,7 @@ results. Do not label them passed based on Xvfb or synthetic hardware data.
 
 ## Regression suite and limits
 
-Run `sh tests/run.sh` after focused tests pass. A shell runner case can contain
+Run the full suite (`python3 tests/settings_test.py --gtk`) after focused tests pass. A shell runner case can contain
 multiple Python tests; report both counts accurately. Missing shellcheck and
 sandbox-restricted device/socket checks are skips or infrastructure limitations,
 not proof of correctness. CI installs the declared GTK test dependencies in both
